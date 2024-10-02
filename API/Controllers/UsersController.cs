@@ -1,15 +1,15 @@
 using System;
 using API.Data;
 using API.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
-[ApiController]
-[Route("api/[controller]")] // /api/users
-public class UsersController(DataContext context) : ControllerBase
+public class UsersController(DataContext context) : BaseApiController
 {
+  [AllowAnonymous]
   [HttpGet]
   public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
   {
@@ -19,6 +19,7 @@ public class UsersController(DataContext context) : ControllerBase
     return users;
   }
 
+  [Authorize]
   [HttpGet("{id:int}")] // /api/users/1
   public async Task<ActionResult<AppUser>> GetUser(int id)
   {
@@ -27,5 +28,24 @@ public class UsersController(DataContext context) : ControllerBase
     if (user == null) return NotFound();
 
     return user;
+  }
+
+  [HttpDelete("{id:int}")] // /api/users/1
+  public async Task<ActionResult> DeleteAccount(int id)
+  {
+    // Find the user by Id
+    var user = await context.Users.FindAsync(id);
+
+    if (user == null)
+      return NotFound("User not found");
+
+    // Remove the user from the context
+    context.Users.Remove(user);
+
+    // Save changes to the database
+    await context.SaveChangesAsync();
+
+    // Return 204 No Content after deletion
+    return NoContent();
   }
 }
