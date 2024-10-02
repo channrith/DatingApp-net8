@@ -16,11 +16,8 @@ public class AccountController(DataContext context, ITokenService tokenService) 
   public async Task<ActionResult<AppUser>> Register(RegisterDto registerDto)
   {
     // Console.WriteLine($"RegisterDto.Username: {registerDto.Username}");
-    // if (!ModelState.IsValid)
-    //   return BadRequest(ModelState);
-
     if (await UserExists(registerDto.Username))
-      return BadRequest("Username already exists");
+      throw new Exception("Username already exists");
 
     using var hmac = new HMACSHA512();
     var user = new AppUser
@@ -40,14 +37,14 @@ public class AccountController(DataContext context, ITokenService tokenService) 
   public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
   {
     var user = await context.Users.FirstOrDefaultAsync(x => x.UserName == loginDto.username.ToLower());
-    if (user == null) return Unauthorized("Username not found");
+    if (user == null) throw new Exception("Username not found");
 
     using var hmac = new HMACSHA512(user.PasswordSalt);
     var passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDto.password)); // convert a string to byte[]
 
     for (int i = 0; i < passwordHash.Length; i++)
     {
-      if (passwordHash[i] != user.PasswordHash[i]) return Unauthorized("Password is invalid");
+      if (passwordHash[i] != user.PasswordHash[i]) throw new Exception("Password is invalid");
     }
 
     return new UserDto

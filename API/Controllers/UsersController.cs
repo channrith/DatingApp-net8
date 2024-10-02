@@ -25,7 +25,7 @@ public class UsersController(DataContext context) : BaseApiController
   {
     var user = await context.Users.FindAsync(id);
 
-    if (user == null) return NotFound();
+    if (user == null) throw new Exception("User not found");
 
     return user;
   }
@@ -37,7 +37,7 @@ public class UsersController(DataContext context) : BaseApiController
     var user = await context.Users.FindAsync(id);
 
     if (user == null)
-      return NotFound("User not found");
+      throw new Exception("User not found");
 
     // Remove the user from the context
     context.Users.Remove(user);
