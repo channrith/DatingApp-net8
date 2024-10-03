@@ -23,6 +23,8 @@ public static class ApplicationServiceExtensions
     services.AddCors();
     // Register a scoped service for token generation
     services.AddScoped<ITokenService, TokenService>();
+    services.AddScoped<IUserRepository, UserRepository>();
+    services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
     return services;
   }

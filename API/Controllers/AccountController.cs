@@ -13,24 +13,25 @@ namespace API.Controllers;
 public class AccountController(DataContext context, ITokenService tokenService) : BaseApiController
 {
   [HttpPost("register")] // /api/account/register
-  public async Task<ActionResult<AppUser>> Register(RegisterDto registerDto)
+  public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
   {
     // Console.WriteLine($"RegisterDto.Username: {registerDto.Username}");
     if (await UserExists(registerDto.Username))
       throw new Exception("Username already exists");
 
-    using var hmac = new HMACSHA512();
-    var user = new AppUser
-    {
-      UserName = registerDto.Username.ToLower(),
-      PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)), // convert a string to byte[]
-      PasswordSalt = hmac.Key
-    };
+    return Ok();
+    // using var hmac = new HMACSHA512();
+    // var user = new AppUser
+    // {
+    //   UserName = registerDto.Username.ToLower(),
+    //   PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)), // convert a string to byte[]
+    //   PasswordSalt = hmac.Key
+    // };
 
-    context.Users.Add(user);
-    await context.SaveChangesAsync();
+    // context.Users.Add(user);
+    // await context.SaveChangesAsync();
 
-    return Ok(user);
+    // return Ok(user);
   }
 
   [HttpPost("login")] // /api/account/login
